@@ -17,14 +17,9 @@ export default function Page() {
 			<header className='bg-white border-b border-gray-200'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
 					<div className='flex justify-between items-center py-6'>
-						<div className='flex items-center'>
-							<h1 className='text-2xl font-bold text-gray-900'>
-								Leads Master
-							</h1>
-							<span className='ml-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-								Admin Dashboard
-							</span>
-						</div>
+						<h1 className='text-2xl font-bold text-gray-900'>
+							Leads Master
+						</h1>
 						<div className='flex items-center space-x-4'>
 							<span className='text-sm text-gray-500'>
 								Welcome, Admin
@@ -188,7 +183,7 @@ export default function Page() {
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className='grid grid-cols-1 md:grid-cols-4 gap-6'>
+						<div className='grid grid-cols-2 md:grid-cols-4 gap-6'>
 							<div className='text-center'>
 								<div className='text-2xl font-bold text-blue-600'>
 									3
@@ -227,7 +222,7 @@ export default function Page() {
 			</div>
 
 			{/* Footer */}
-			<footer className='bg-white border-t border-gray-200 mt-20'>
+			<footer className='bg-white border-t border-gray-200 mt-10'>
 				<div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
 					<div className='text-center text-gray-500'>
 						<p>

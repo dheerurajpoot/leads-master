@@ -101,7 +101,7 @@ export async function PATCH(req: Request) {
 
 		if (!expected || adminKey !== expected) {
 			return NextResponse.json(
-				{ error: "Unauthorized" },
+				{ error: "Invalid admin key" },
 				{ status: 401 }
 			);
 		}
@@ -161,7 +161,7 @@ export async function GET(req: Request) {
 
 		if (!expected || adminKey !== expected) {
 			return NextResponse.json(
-				{ error: "Unauthorized" },
+				{ error: "Invalid admin key" },
 				{ status: 401 }
 			);
 		}
