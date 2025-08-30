@@ -48,10 +48,11 @@ export default function AdminPage() {
 		}
 	}, [adminKey, fetchLeads]);
 
-	const allEmails = useMemo(
-		() => leads.map((l) => l.email).join("\n"),
+	const allPhones = useMemo(
+		() => leads.map((l) => l.phone).join("\n"),
 		[leads]
 	);
+
 	const allRows = useMemo(
 		() =>
 			leads
@@ -79,7 +80,7 @@ export default function AdminPage() {
 					<CardTitle className='text-pretty'>Admin • Leads</CardTitle>
 				</CardHeader>
 				<CardContent className='flex flex-col gap-4'>
-					<div className='flex flex-col items-start gap-2 md:flex-row md:items-end'>
+					<div className='flex items-center gap-2 md:flex-row md:items-end'>
 						<div className='flex flex-col gap-2'>
 							<label
 								htmlFor='adminkey'
@@ -92,12 +93,12 @@ export default function AdminPage() {
 								value={adminKey}
 								onChange={(e) => setAdminKey(e.target.value)}
 								type='password'
-								className='w-64'
+								className='w-full'
 							/>
 						</div>
 						<Button
 							onClick={saveKey}
-							className='bg-blue-600 hover:bg-blue-700 text-white md:ml-2'>
+							className='mt-6 bg-blue-600 hover:bg-blue-700 text-white md:ml-2'>
 							Save key
 						</Button>
 						{saved && (
@@ -111,10 +112,10 @@ export default function AdminPage() {
 						<Button
 							variant='outline'
 							onClick={() => {
-								navigator.clipboard.writeText(allEmails);
+								navigator.clipboard.writeText(allPhones);
 							}}
 							disabled={!leads.length}>
-							Copy all emails
+							Copy all phones
 						</Button>
 						<Button
 							variant='outline'

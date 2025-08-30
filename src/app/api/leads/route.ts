@@ -9,9 +9,9 @@ const corsHeaders = {
 	"Access-Control-Allow-Headers": "Content-Type, x-admin-key",
 };
 
-function isValidEmail(email: string) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+// function isValidEmail(email: string) {
+// 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+// }
 
 function isValidPhone(phone: string) {
 	// Simple, permissive phone validator for international formats
@@ -26,20 +26,7 @@ export async function OPTIONS() {
 export async function POST(req: Request) {
 	try {
 		const body = await req.json().catch(() => ({}));
-		const {
-			name,
-			phone,
-			email,
-			city = "",
-			loanAmount,
-			website, // honeypot
-			source = "landing",
-		} = body || {};
-
-		// Honeypot
-		if (typeof website === "string" && website.trim().length > 0) {
-			return NextResponse.json({ ok: true }, { headers: corsHeaders });
-		}
+		const { name, phone, email, city = "", loanAmount } = body || {};
 
 		// Basic validation
 		if (!name || typeof name !== "string" || name.trim().length < 2) {
@@ -48,12 +35,12 @@ export async function POST(req: Request) {
 				{ status: 400, headers: corsHeaders }
 			);
 		}
-		if (!email || typeof email !== "string" || !isValidEmail(email)) {
-			return NextResponse.json(
-				{ error: "Valid email is required" },
-				{ status: 400, headers: corsHeaders }
-			);
-		}
+		// if (!email || typeof email !== "string" || !isValidEmail(email)) {
+		// 	return NextResponse.json(
+		// 		{ error: "Valid email is required" },
+		// 		{ status: 400, headers: corsHeaders }
+		// 	);
+		// }
 		if (!phone || typeof phone !== "string" || !isValidPhone(phone)) {
 			return NextResponse.json(
 				{ error: "Valid phone is required" },
@@ -77,7 +64,6 @@ export async function POST(req: Request) {
 			phone: phone.trim(),
 			city: typeof city === "string" ? city.trim() : "",
 			loanAmount: parsedLoan,
-			source: typeof source === "string" ? source : "landing",
 		});
 
 		await lead.save();
@@ -133,7 +119,6 @@ export async function GET(req: Request) {
 			phone: lead.phone,
 			city: lead.city || "",
 			loanAmount: lead.loanAmount ?? null,
-			source: lead.source,
 			created_at:
 				lead.created_at?.toISOString() || new Date().toISOString(),
 		}));

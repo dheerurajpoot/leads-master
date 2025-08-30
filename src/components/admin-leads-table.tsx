@@ -82,9 +82,9 @@ export default function AdminLeadsTable({ leads }: { leads: Lead[] }) {
 									Loan: ₹{l.loanAmount.toLocaleString()}
 								</div>
 							)}
-							<div className='mt-1 text-xs text-gray-500'>
+							{/* <div className='mt-1 text-xs text-gray-500'>
 								Source: {l.source}
-							</div>
+							</div> */}
 						</div>
 						<div className='mt-2 flex gap-2'>
 							<Button
@@ -105,7 +105,7 @@ export default function AdminLeadsTable({ leads }: { leads: Lead[] }) {
 										}, ${l.loanAmount ?? ""}`
 									)
 								}>
-								Copy row
+								Copy Data
 							</Button>
 						</div>
 					</div>
@@ -122,7 +122,7 @@ export default function AdminLeadsTable({ leads }: { leads: Lead[] }) {
 							<TableHead>Phone</TableHead>
 							<TableHead>City</TableHead>
 							<TableHead>Loan Amount</TableHead>
-							<TableHead>Source</TableHead>
+							{/* <TableHead>Source</TableHead> */}
 							<TableHead className='w-[180px]'>Date</TableHead>
 							<TableHead className='w-[160px]'>Actions</TableHead>
 						</TableRow>
@@ -143,9 +143,9 @@ export default function AdminLeadsTable({ leads }: { leads: Lead[] }) {
 										? `₹${l.loanAmount.toLocaleString()}`
 										: ""}
 								</TableCell>
-								<TableCell className='text-gray-600'>
+								{/* <TableCell className='text-gray-600'>
 									{l.source}
-								</TableCell>
+								</TableCell> */}
 								<TableCell>
 									{new Date(l.created_at).toLocaleString()}
 								</TableCell>

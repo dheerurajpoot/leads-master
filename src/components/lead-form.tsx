@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { leadAPI } from "@/lib/api";
+import { CheckCircle } from "lucide-react";
 
 type Status = {
 	type: "idle" | "loading" | "success" | "error";
@@ -59,11 +60,34 @@ export default function LeadForm({ source = "landing" }: { source?: string }) {
 		}
 	};
 
+	const resetForm = () => {
+		setStatus({ type: "idle" });
+	};
+
+	// Show success state instead of form
+	if (status.type === "success") {
+		return (
+			<Card className='border border-gray-200'>
+				<CardContent className='pt-6'>
+					<div className='flex flex-col items-center text-center gap-4 py-8'>
+						<CheckCircle className='h-16 w-16 text-emerald-500' />
+						<h3 className='text-xl font-semibold text-gray-900'>
+							Your application has been received!
+						</h3>
+						<p className='text-gray-600 max-w-md'>
+							We will contact you shortly.
+						</p>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
+
 	return (
 		<Card className='border border-gray-200'>
 			<CardHeader>
 				<CardTitle className='text-pretty'>
-					Get a quick callback
+					Apply for a Business loan
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
@@ -156,11 +180,6 @@ export default function LeadForm({ source = "landing" }: { source?: string }) {
 						{status.type === "loading" ? "Submitting..." : "Submit"}
 					</Button>
 
-					{status.type === "success" && (
-						<p className='text-sm text-emerald-600'>
-							{status.message}
-						</p>
-					)}
 					{status.type === "error" && (
 						<p className='text-sm text-red-600'>{status.message}</p>
 					)}
