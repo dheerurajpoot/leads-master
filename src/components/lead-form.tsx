@@ -15,13 +15,12 @@ type Status = {
 	message?: string;
 };
 
-export default function LeadForm({ source = "landing" }: { source?: string }) {
+export default function LeadForm() {
 	const [name, setName] = useState("");
 	const [phone, setPhone] = useState("");
 	const [email, setEmail] = useState("");
 	const [city, setCity] = useState("");
 	const [loanAmount, setLoanAmount] = useState<string>("");
-	const [website, setWebsite] = useState(""); // honeypot
 	const [status, setStatus] = useState<Status>({ type: "idle" });
 
 	const onSubmit = async (e: React.FormEvent) => {
@@ -35,7 +34,6 @@ export default function LeadForm({ source = "landing" }: { source?: string }) {
 				email,
 				city,
 				loanAmount: loanAmount === "" ? undefined : Number(loanAmount),
-				source,
 			});
 
 			setStatus({
@@ -49,7 +47,6 @@ export default function LeadForm({ source = "landing" }: { source?: string }) {
 			setEmail("");
 			setCity("");
 			setLoanAmount("");
-			setWebsite("");
 		} catch (err: unknown) {
 			const errorMessage =
 				err instanceof Error
@@ -157,19 +154,6 @@ export default function LeadForm({ source = "landing" }: { source?: string }) {
 							onChange={(e) => setLoanAmount(e.target.value)}
 							min='0'
 							step='1'
-						/>
-					</div>
-
-					{/* Honeypot field for bots (hidden from users) */}
-					<div className='sr-only' aria-hidden='true'>
-						<Label htmlFor='website'>Website</Label>
-						<Input
-							id='website'
-							name='website'
-							tabIndex={-1}
-							autoComplete='off'
-							value={website}
-							onChange={(e) => setWebsite(e.target.value)}
 						/>
 					</div>
 

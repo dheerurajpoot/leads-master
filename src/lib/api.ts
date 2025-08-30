@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Create axios instance with default config
 const api = axios.create({
@@ -59,6 +59,12 @@ export const leadAPI = {
 	// Get all leads (admin only)
 	getAll: async () => {
 		const response = await api.get("/api/leads");
+		return response.data;
+	},
+
+	// Toggle done status of a lead
+	toggleDone: async (leadId: string, done: boolean) => {
+		const response = await api.patch("/api/leads", { leadId, done });
 		return response.data;
 	},
 };

@@ -1,13 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	CheckCircle,
-	TrendingUp,
-	Shield,
-	Clock,
-	Users,
-	Award,
-} from "lucide-react";
+import { TrendingUp, Shield, Clock } from "lucide-react";
 
 export default function Page() {
 	return (
@@ -32,19 +25,6 @@ export default function Page() {
 						streamlined application process. Quick approvals,
 						competitive rates, and flexible terms.
 					</p>
-					<div className='flex flex-col sm:flex-row gap-4 justify-center'>
-						<Button
-							size='lg'
-							className='bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg'>
-							Apply Now
-						</Button>
-						<Button
-							size='lg'
-							variant='outline'
-							className='px-8 py-3 text-lg'>
-							Learn More
-						</Button>
-					</div>
 				</div>
 			</section>
 
@@ -56,8 +36,8 @@ export default function Page() {
 							Why Choose Our Business Loans?
 						</h2>
 						<p className='text-xl text-gray-600 max-w-2xl mx-auto'>
-							We've simplified the lending process to get you the
-							funds you need quickly and efficiently.
+							We&apos;ve simplified the lending process to get you
+							the funds you need quickly and efficiently.
 						</p>
 					</div>
 

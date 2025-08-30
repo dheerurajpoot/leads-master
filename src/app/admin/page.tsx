@@ -14,6 +14,9 @@ export default function AdminPage() {
 	const [leads, setLeads] = useState<Lead[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [currentDateFilter, setCurrentDateFilter] = useState<
+		"today" | "yesterday" | "last7days" | "last30days" | "all"
+	>("today");
 
 	useEffect(() => {
 		const k = localStorage.getItem("admin-key");
@@ -48,11 +51,88 @@ export default function AdminPage() {
 		}
 	}, [adminKey, fetchLeads]);
 
-	const allPhones = useMemo(
-		() => leads.map((l) => l.phone).join("\n"),
+	const handleLeadUpdate = useCallback((updatedLead: Lead) => {
+		setLeads((prevLeads) =>
+			prevLeads.map((lead) =>
+				lead.id === updatedLead.id ? updatedLead : lead
+			)
+		);
+	}, []);
+
+	// Get filtered leads based on current date filter
+	const getFilteredLeads = useCallback(
+		(dateFilter: typeof currentDateFilter) => {
+			const now = new Date();
+			const today = new Date(
+				now.getFullYear(),
+				now.getMonth(),
+				now.getDate()
+			);
+			const yesterday = new Date(today);
+			yesterday.setDate(yesterday.getDate() - 1);
+			const last7Days = new Date(today);
+			last7Days.setDate(last7Days.getDate() - 7);
+			const last30Days = new Date(today);
+			last30Days.setDate(last30Days.getDate() - 30);
+
+			switch (dateFilter) {
+				case "today":
+					return leads.filter((lead) => {
+						const leadDate = new Date(lead.created_at);
+						return leadDate >= today;
+					});
+				case "yesterday":
+					return leads.filter((lead) => {
+						const leadDate = new Date(lead.created_at);
+						return leadDate >= yesterday && leadDate < today;
+					});
+				case "last7days":
+					return leads.filter((lead) => {
+						const leadDate = new Date(lead.created_at);
+						return leadDate >= last7Days;
+					});
+				case "last30days":
+					return leads.filter((lead) => {
+						const leadDate = new Date(lead.created_at);
+						return leadDate >= last30Days;
+					});
+				case "all":
+					return leads;
+				default:
+					return leads;
+			}
+		},
 		[leads]
 	);
 
+	const handleDateFilterChange = useCallback(
+		(newFilter: typeof currentDateFilter) => {
+			setCurrentDateFilter(newFilter);
+		},
+		[]
+	);
+
+	const getDateFilterLabel = (filter: typeof currentDateFilter) => {
+		switch (filter) {
+			case "today":
+				return "Today";
+			case "yesterday":
+				return "Yesterday";
+			case "last7days":
+				return "Last 7 Days";
+			case "last30days":
+				return "Last 30 Days";
+			case "all":
+				return "All Time";
+			default:
+				return "Today";
+		}
+	};
+
+	const allEmails = useMemo(
+		() => leads.map((l) => l.email).join("\n"),
+		[leads]
+	);
 	const allRows = useMemo(
 		() =>
 			leads
@@ -73,6 +153,15 @@ export default function AdminPage() {
 		fetchLeads();
 	};
 
+	const handleExportFiltered = () => {
+		const filteredLeads = getFilteredLeads(currentDateFilter);
+		if (filteredLeads.length > 0) {
+			exportLeadsToXLSX(filteredLeads);
+		}
+	};
+
+	const filteredLeadsCount = getFilteredLeads(currentDateFilter).length;
+
 	return (
 		<main className='mx-auto max-w-5xl px-4 py-8'>
 			<Card>
@@ -80,7 +169,7 @@ export default function AdminPage() {
 					<CardTitle className='text-pretty'>Admin • Leads</CardTitle>
 				</CardHeader>
 				<CardContent className='flex flex-col gap-4'>
-					<div className='flex items-center gap-2 md:flex-row md:items-end'>
+					<div className='flex flex-row items-start gap-2 md:flex-row md:items-end'>
 						<div className='flex flex-col gap-2'>
 							<label
 								htmlFor='adminkey'
@@ -98,7 +187,7 @@ export default function AdminPage() {
 						</div>
 						<Button
 							onClick={saveKey}
-							className='mt-6 bg-blue-600 hover:bg-blue-700 text-white md:ml-2'>
+							className='bg-blue-600 mt-7 hover:bg-blue-700 text-white md:ml-2'>
 							Save key
 						</Button>
 						{saved && (
@@ -112,10 +201,10 @@ export default function AdminPage() {
 						<Button
 							variant='outline'
 							onClick={() => {
-								navigator.clipboard.writeText(allPhones);
+								navigator.clipboard.writeText(allEmails);
 							}}
 							disabled={!leads.length}>
-							Copy all phones
+							Copy all emails
 						</Button>
 						<Button
 							variant='outline'
@@ -126,10 +215,17 @@ export default function AdminPage() {
 							Copy all rows
 						</Button>
 						<Button
-							onClick={() => leads && exportLeadsToXLSX(leads)}
+							onClick={handleExportFiltered}
 							className='bg-blue-600 hover:bg-blue-700 text-white'
+							disabled={!filteredLeadsCount}>
+							Download Excel (
+							{getDateFilterLabel(currentDateFilter)})
+						</Button>
+						<Button
+							onClick={() => leads && exportLeadsToXLSX(leads)}
+							variant='outline'
 							disabled={!leads.length}>
-							Download Excel
+							Download All Leads
 						</Button>
 						<Button
 							variant='secondary'
@@ -147,7 +243,14 @@ export default function AdminPage() {
 							{error}. Ensure the ADMIN_KEY is set and correct.
 						</p>
 					)}
-					{leads.length > 0 && <AdminLeadsTable leads={leads} />}
+					{leads.length > 0 && (
+						<AdminLeadsTable
+							leads={leads}
+							onLeadUpdate={handleLeadUpdate}
+							onDateFilterChange={handleDateFilterChange}
+							currentDateFilter={currentDateFilter}
+						/>
+					)}
 				</CardContent>
 			</Card>
 		</main>

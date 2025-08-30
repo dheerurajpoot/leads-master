@@ -5,13 +5,13 @@ import { NextResponse } from "next/server";
 // CORS headers for embeddable form POSTs
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "POST, OPTIONS",
+	"Access-Control-Allow-Methods": "POST, OPTIONS, PATCH",
 	"Access-Control-Allow-Headers": "Content-Type, x-admin-key",
 };
 
-// function isValidEmail(email: string) {
-// 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-// }
+function isValidEmail(email: string) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 function isValidPhone(phone: string) {
 	// Simple, permissive phone validator for international formats
@@ -35,12 +35,12 @@ export async function POST(req: Request) {
 				{ status: 400, headers: corsHeaders }
 			);
 		}
-		// if (!email || typeof email !== "string" || !isValidEmail(email)) {
-		// 	return NextResponse.json(
-		// 		{ error: "Valid email is required" },
-		// 		{ status: 400, headers: corsHeaders }
-		// 	);
-		// }
+		if (!email || typeof email !== "string" || !isValidEmail(email)) {
+			return NextResponse.json(
+				{ error: "Valid email is required" },
+				{ status: 400, headers: corsHeaders }
+			);
+		}
 		if (!phone || typeof phone !== "string" || !isValidPhone(phone)) {
 			return NextResponse.json(
 				{ error: "Valid phone is required" },
@@ -64,6 +64,7 @@ export async function POST(req: Request) {
 			phone: phone.trim(),
 			city: typeof city === "string" ? city.trim() : "",
 			loanAmount: parsedLoan,
+			done: false,
 		});
 
 		await lead.save();
@@ -89,6 +90,66 @@ export async function POST(req: Request) {
 		return NextResponse.json(
 			{ error: "Unexpected error occurred" },
 			{ status: 500, headers: corsHeaders }
+		);
+	}
+}
+
+export async function PATCH(req: Request) {
+	try {
+		const adminKey = req.headers.get("x-admin-key");
+		const expected = process.env.ADMIN_KEY;
+
+		if (!expected || adminKey !== expected) {
+			return NextResponse.json(
+				{ error: "Unauthorized" },
+				{ status: 401 }
+			);
+		}
+
+		const body = await req.json().catch(() => ({}));
+		const { leadId, done } = body;
+
+		if (!leadId || typeof done !== "boolean") {
+			return NextResponse.json(
+				{ error: "Invalid request data" },
+				{ status: 400 }
+			);
+		}
+
+		await connectDb();
+
+		const lead = await Lead.findByIdAndUpdate(
+			leadId,
+			{ done },
+			{ new: true }
+		);
+
+		if (!lead) {
+			return NextResponse.json(
+				{ error: "Lead not found" },
+				{ status: 404 }
+			);
+		}
+
+		return NextResponse.json({
+			ok: true,
+			lead: {
+				id: String(lead._id),
+				name: lead.name,
+				email: lead.email,
+				phone: lead.phone,
+				city: lead.city || "",
+				loanAmount: lead.loanAmount ?? null,
+				done: lead.done,
+				created_at:
+					lead.created_at?.toISOString() || new Date().toISOString(),
+			},
+		});
+	} catch (err) {
+		console.error("PATCH /api/leads error:", err);
+		return NextResponse.json(
+			{ error: "Failed to update lead" },
+			{ status: 500 }
 		);
 	}
 }
@@ -119,6 +180,7 @@ export async function GET(req: Request) {
 			phone: lead.phone,
 			city: lead.city || "",
 			loanAmount: lead.loanAmount ?? null,
+			done: lead.done,
 			created_at:
 				lead.created_at?.toISOString() || new Date().toISOString(),
 		}));

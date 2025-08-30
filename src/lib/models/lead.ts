@@ -6,7 +6,7 @@ export interface ILead extends Document {
 	phone: string;
 	city?: string;
 	loanAmount?: number;
-	source: string;
+	done: boolean;
 	created_at: Date;
 }
 
@@ -19,8 +19,10 @@ const leadSchema = new Schema<ILead>({
 	},
 	email: {
 		type: String,
+		required: true,
+		trim: true,
 		lowercase: true,
-		default: "",
+		match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
 	},
 	phone: {
 		type: String,
@@ -37,10 +39,9 @@ const leadSchema = new Schema<ILead>({
 		min: 0,
 		default: null,
 	},
-	source: {
-		type: String,
-		default: "landing",
-		trim: true,
+	done: {
+		type: Boolean,
+		default: false,
 	},
 	created_at: {
 		type: Date,
@@ -50,6 +51,7 @@ const leadSchema = new Schema<ILead>({
 
 // Create index for better query performance
 leadSchema.index({ created_at: -1 });
+leadSchema.index({ done: 1 });
 
 export const Lead =
 	mongoose.models.Lead || mongoose.model<ILead>("Lead", leadSchema);
