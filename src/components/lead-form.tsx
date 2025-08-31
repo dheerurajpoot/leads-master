@@ -84,7 +84,7 @@ export default function LeadForm() {
 		<Card className='border border-gray-200'>
 			<CardHeader>
 				<CardTitle className='text-pretty'>
-					Apply for a Business loan
+					Mudra Loan Application Form
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
