@@ -84,7 +84,7 @@ export default function LeadForm() {
 		<Card className='border border-gray-200'>
 			<CardHeader>
 				<CardTitle className='text-pretty'>
-					Mudra Loan Application Form
+					Loan Application Form
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
@@ -161,7 +161,9 @@ export default function LeadForm() {
 						type='submit'
 						className='bg-blue-600 hover:bg-blue-700 text-white'
 						disabled={status.type === "loading"}>
-						{status.type === "loading" ? "Submitting..." : "Submit"}
+						{status.type === "loading"
+							? "Submitting..."
+							: "Apply Now"}
 					</Button>
 
 					{status.type === "error" && (
