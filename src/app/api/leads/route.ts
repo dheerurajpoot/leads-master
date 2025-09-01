@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 // CORS headers for embeddable form POSTs
 const corsHeaders = {
 	"Access-Control-Allow-Origin": "*",
-	"Access-Control-Allow-Methods": "POST, OPTIONS, PATCH",
+	"Access-Control-Allow-Methods": "POST, OPTIONS, PATCH, DELETE",
 	"Access-Control-Allow-Headers": "Content-Type, x-admin-key",
 };
 
@@ -190,6 +190,48 @@ export async function GET(req: Request) {
 		console.error("GET /api/leads error:", err);
 		return NextResponse.json(
 			{ error: "Failed to fetch leads" },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function DELETE(req: Request) {
+	try {
+		const adminKey = req.headers.get("x-admin-key");
+		const expected = process.env.ADMIN_KEY;
+
+		if (!expected || adminKey !== expected) {
+			return NextResponse.json(
+				{ error: "Invalid admin key" },
+				{ status: 401 }
+			);
+		}
+
+		const body = await req.json().catch(() => ({}));
+		const { leadId } = body;
+
+		if (!leadId || typeof leadId !== "string") {
+			return NextResponse.json(
+				{ error: "Invalid request data" },
+				{ status: 400 }
+			);
+		}
+
+		await connectDb();
+
+		const deleted = await Lead.findByIdAndDelete(leadId);
+		if (!deleted) {
+			return NextResponse.json(
+				{ error: "Lead not found" },
+				{ status: 404 }
+			);
+		}
+
+		return NextResponse.json({ ok: true });
+	} catch (err) {
+		console.error("DELETE /api/leads error:", err);
+		return NextResponse.json(
+			{ error: "Failed to delete lead" },
 			{ status: 500 }
 		);
 	}

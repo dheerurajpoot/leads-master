@@ -64,6 +64,10 @@ export default function AdminPage() {
 		);
 	}, []);
 
+	const handleLeadDelete = useCallback((leadId: string) => {
+		setLeads((prevLeads) => prevLeads.filter((l) => l.id !== leadId));
+	}, []);
+
 	// Get filtered leads based on current date filter
 	const getFilteredLeads = useCallback(
 		(dateFilter: typeof currentDateFilter) => {
@@ -351,6 +355,7 @@ export default function AdminPage() {
 								onLeadUpdate={handleLeadUpdate}
 								onDateFilterChange={handleDateFilterChange}
 								currentDateFilter={currentDateFilter}
+								onLeadDelete={handleLeadDelete}
 							/>
 						)}
 

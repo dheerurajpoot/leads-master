@@ -67,6 +67,12 @@ export const leadAPI = {
 		const response = await api.patch("/api/leads", { leadId, done });
 		return response.data;
 	},
+
+	// Delete a lead (admin only)
+	delete: async (leadId: string) => {
+		const response = await api.delete("/api/leads", { data: { leadId } });
+		return response.data;
+	},
 };
 
 export default api;

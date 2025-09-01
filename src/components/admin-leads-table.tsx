@@ -18,7 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Check, CheckCircle } from "lucide-react";
+import { Check, CheckCircle, Trash } from "lucide-react";
 import { leadAPI } from "@/lib/api";
 
 export type Lead = {
@@ -39,6 +39,7 @@ interface AdminLeadsTableProps {
 	onLeadUpdate: (updatedLead: Lead) => void;
 	onDateFilterChange: (newFilter: DateFilter) => void;
 	currentDateFilter: DateFilter;
+	onLeadDelete: (leadId: string) => void;
 }
 
 export default function AdminLeadsTable({
@@ -46,10 +47,12 @@ export default function AdminLeadsTable({
 	onLeadUpdate,
 	onDateFilterChange,
 	currentDateFilter,
+	onLeadDelete,
 }: AdminLeadsTableProps) {
 	const [query, setQuery] = useState("");
 	const [dateFilter, setDateFilter] = useState<DateFilter>(currentDateFilter);
 	const [updatingLeads, setUpdatingLeads] = useState<Set<string>>(new Set());
+	const [deletingLeads, setDeletingLeads] = useState<Set<string>>(new Set());
 
 	// Sync local date filter with parent component
 	useEffect(() => {
@@ -147,6 +150,29 @@ export default function AdminLeadsTable({
 		}
 	};
 
+	const deleteLead = async (leadId: string) => {
+		if (deletingLeads.has(leadId)) return;
+		const confirmed = window.confirm(
+			"Are you sure you want to delete this lead? This action cannot be undone."
+		);
+		if (!confirmed) return;
+		setDeletingLeads((prev) => new Set(prev).add(leadId));
+		try {
+			const response = await leadAPI.delete(leadId);
+			if (response.ok) {
+				onLeadDelete(leadId);
+			}
+		} catch (error) {
+			console.error("Failed to delete lead:", error);
+		} finally {
+			setDeletingLeads((prev) => {
+				const newSet = new Set(prev);
+				newSet.delete(leadId);
+				return newSet;
+			});
+		}
+	};
+
 	const handleDateFilterChange = (newFilter: DateFilter) => {
 		setDateFilter(newFilter);
 		onDateFilterChange(newFilter);
@@ -205,7 +231,8 @@ export default function AdminLeadsTable({
 			{/* Results summary */}
 			<div className='flex items-center justify-between text-sm text-gray-600'>
 				<span>
-					Showing {filtered.length} of {leads.length} leads
+					Showing {getDateFilterLabel(dateFilter)}: {filtered.length}{" "}
+					leads
 				</span>
 				<span className='text-blue-600 font-medium'>
 					{getDateFilterLabel(dateFilter)}
@@ -277,6 +304,18 @@ export default function AdminLeadsTable({
 									<CheckCircle className='h-4 w-4' />
 								) : (
 									<Check className='h-4 w-4' />
+								)}
+							</Button>
+							<Button
+								size='sm'
+								variant='destructive'
+								onClick={() => deleteLead(l.id)}
+								disabled={deletingLeads.has(l.id)}
+								className='cursor-pointer'>
+								{deletingLeads.has(l.id) ? (
+									<div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
+								) : (
+									<Trash className='h-4 w-4' />
 								)}
 							</Button>
 						</div>
@@ -375,6 +414,18 @@ export default function AdminLeadsTable({
 												<CheckCircle className='h-4 w-4' />
 											) : (
 												<Check className='h-4 w-4' />
+											)}
+										</Button>
+										<Button
+											size='sm'
+											variant='destructive'
+											onClick={() => deleteLead(l.id)}
+											disabled={deletingLeads.has(l.id)}
+											className='cursor-pointer'>
+											{deletingLeads.has(l.id) ? (
+												<div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
+											) : (
+												<Trash className='h-4 w-4' />
 											)}
 										</Button>
 									</div>
