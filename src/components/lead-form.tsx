@@ -162,12 +162,14 @@ export default function LeadForm() {
 						<p>
 							By submitting this form, you agree to our{" "}
 							<Link
+								target='_blank'
 								href='/privacy-policy'
 								className='text-blue-600 hover:underline'>
 								Privacy Policy
 							</Link>{" "}
 							and acknowledge that you have read our{" "}
 							<Link
+								target='_blank'
 								href='/disclaimer'
 								className='text-blue-600 hover:underline'>
 								Disclaimer
