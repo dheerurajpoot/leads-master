@@ -1,5 +1,7 @@
 import { connectDb } from "@/lib/database";
 import { Lead } from "@/lib/models/lead";
+import { generateAdminEmail } from "@/lib/emails";
+import { sendEmail } from "@/lib/emails";
 import { NextResponse } from "next/server";
 
 // CORS headers for embeddable form POSTs
@@ -56,6 +58,13 @@ export async function POST(req: Request) {
 				: null;
 
 		await connectDb();
+		const existingLead = await Lead.findOne({ phone: phone.trim() });
+		if (existingLead) {
+			return NextResponse.json(
+				{ error: "You have already submitted your application" },
+				{ status: 409, headers: corsHeaders }
+			);
+		}
 
 		// Create new lead using the model
 		const lead = new Lead({
@@ -66,6 +75,20 @@ export async function POST(req: Request) {
 			loanAmount: parsedLoan,
 			done: false,
 		});
+
+		//message to admin email
+		await sendEmail({
+			to: `New Lead Received: ${process.env.ADMIN_EMAIL!}`,
+			subject: "New Lead Received!",
+			html: generateAdminEmail(name, email, phone, city, loanAmount),
+		});
+
+		//message to user
+		// await sendEmail({
+		// 	to: `Mudra Loan Application Submitted: ${email}`,
+		// 	subject: "Mudra Loan Application Submitted Successfully!",
+		// 	html: generateLeadEmail(name),
+		// });
 
 		await lead.save();
 
@@ -78,14 +101,6 @@ export async function POST(req: Request) {
 		);
 	} catch (err) {
 		console.error("POST /api/leads error:", err);
-
-		// Handle duplicate email error
-		if (err instanceof Error && err.message.includes("duplicate key")) {
-			return NextResponse.json(
-				{ error: "A lead with this email already exists" },
-				{ status: 409, headers: corsHeaders }
-			);
-		}
 
 		return NextResponse.json(
 			{ error: "Unexpected error occurred" },

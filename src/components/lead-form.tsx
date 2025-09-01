@@ -49,17 +49,12 @@ export default function LeadForm() {
 			setCity("");
 			setLoanAmount("");
 		} catch (err: unknown) {
-			const errorMessage =
-				err instanceof Error
-					? err.message
-					: (err as { response?: { data?: { error?: string } } })
-							?.response?.data?.error || "Failed to submit";
+			const response = err as {
+				response?: { data?: { error?: string } };
+			};
+			const errorMessage = response.response?.data?.error;
 			setStatus({ type: "error", message: errorMessage });
 		}
-	};
-
-	const resetForm = () => {
-		setStatus({ type: "idle" });
 	};
 
 	// Show success state instead of form
