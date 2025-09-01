@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { leadAPI } from "@/lib/api";
 import { CheckCircle } from "lucide-react";
+import Link from "next/link";
 
 type Status = {
 	type: "idle" | "loading" | "success" | "error";
@@ -155,6 +156,30 @@ export default function LeadForm() {
 							min='0'
 							step='1'
 						/>
+					</div>
+
+					<div className='text-xs text-gray-600 space-y-2'>
+						<p>
+							By submitting this form, you agree to our{" "}
+							<Link
+								href='/privacy-policy'
+								className='text-blue-600 hover:underline'>
+								Privacy Policy
+							</Link>{" "}
+							and acknowledge that you have read our{" "}
+							<Link
+								href='/disclaimer'
+								className='text-blue-600 hover:underline'>
+								Disclaimer
+							</Link>
+							.
+						</p>
+						<p>
+							<b>Disclaimer:</b> This form is for loan application
+							purposes only. Submission does not guarantee loan
+							approval. All applications are subject to credit
+							review and approval based on our lending criteria.
+						</p>
 					</div>
 
 					<Button
