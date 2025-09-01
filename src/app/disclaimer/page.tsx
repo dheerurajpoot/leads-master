@@ -65,9 +65,9 @@ export default function Disclaimer() {
 							The information on this website does not constitute
 							financial advice, investment advice, trading advice,
 							or any other sort of advice. You should not treat
-							any of the website's content as such. We recommend
-							consulting with qualified financial professionals
-							before making any financial decisions.
+							any of the website&apos;s content as such. We
+							recommend consulting with qualified financial
+							professionals before making any financial decisions.
 						</p>
 					</div>
 
