@@ -43,17 +43,28 @@ export async function POST(request: NextRequest) {
 					})
 				);
 				return { success: true, subscription: doc.subscription };
-			} catch (error: any) {
+			} catch (error: unknown) {
 				console.error("Push notification failed:", error);
 
 				// If subscription is invalid, mark it as inactive
-				if (error.statusCode === 410) {
+				if (
+					error &&
+					typeof error === "object" &&
+					"statusCode" in error &&
+					error.statusCode === 410
+				) {
 					await PushSubscription.findByIdAndUpdate(doc._id, {
 						active: false,
 					});
 				}
 
-				return { success: false, error: error.message };
+				return {
+					success: false,
+					error:
+						error instanceof Error
+							? error.message
+							: "Unknown error",
+				};
 			}
 		});
 
