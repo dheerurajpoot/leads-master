@@ -52,12 +52,17 @@ export class PushNotificationService {
 		}
 
 		try {
+			const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+			if (!vapidPublicKey) {
+				console.error("VAPID public key not found");
+				return null;
+			}
+
 			const subscription =
 				await this.swRegistration!.pushManager.subscribe({
 					userVisibleOnly: true,
-					applicationServerKey: this.urlBase64ToUint8Array(
-						process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ""
-					),
+					applicationServerKey:
+						this.urlBase64ToUint8Array(vapidPublicKey),
 				});
 
 			return JSON.stringify(subscription);
