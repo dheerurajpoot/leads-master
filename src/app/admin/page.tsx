@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { leadAPI } from "@/lib/api";
 import { Shield, Users, CheckCircle } from "lucide-react";
-import PushNotificationSetup from "@/components/push-notification-setup";
 
 export default function AdminPage() {
 	const [adminKey, setAdminKey] = useState("");
@@ -375,11 +374,6 @@ export default function AdminPage() {
 						)}
 					</CardContent>
 				</Card>
-
-				{/* Push Notification Setup */}
-				<div className='mt-6'>
-					<PushNotificationSetup />
-				</div>
 			</div>
 		</main>
 	);
