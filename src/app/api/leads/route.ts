@@ -1,7 +1,6 @@
 import { connectDb } from "@/lib/database";
 import { Lead } from "@/lib/models/lead";
-import { generateAdminEmail } from "@/lib/emails";
-import { sendEmail } from "@/lib/emails";
+import { sendTelegramNotification } from "@/lib/telegram";
 import { NextResponse } from "next/server";
 
 // CORS headers for embeddable form POSTs
@@ -76,19 +75,14 @@ export async function POST(req: Request) {
 			done: false,
 		});
 
-		//message to admin email
-		await sendEmail({
-			to: `New Lead Received: ${process.env.ADMIN_EMAIL!}`,
-			subject: "New Lead Received!",
-			html: generateAdminEmail(name, email, phone, city, loanAmount),
+		// Send Telegram notification to admin
+		await sendTelegramNotification({
+			name,
+			email,
+			phone,
+			city,
+			loanAmount: parsedLoan,
 		});
-
-		//message to user
-		// await sendEmail({
-		// 	to: `Mudra Loan Application Submitted: ${email}`,
-		// 	subject: "Mudra Loan Application Submitted Successfully!",
-		// 	html: generateLeadEmail(name),
-		// });
 
 		await lead.save();
 
