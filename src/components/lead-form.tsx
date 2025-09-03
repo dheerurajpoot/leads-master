@@ -37,6 +37,17 @@ export default function LeadForm() {
 				loanAmount: loanAmount === "" ? undefined : Number(loanAmount),
 			});
 
+			// Send push notification to admin
+			fetch("/api/send-push", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					message: `New lead submitted: ${name} from ${
+						city || "Unknown City"
+					}`,
+				}),
+			}).catch(console.error);
+
 			setStatus({
 				type: "success",
 				message: "Thanks! We'll be in touch soon.",
