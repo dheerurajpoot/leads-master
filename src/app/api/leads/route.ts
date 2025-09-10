@@ -1,6 +1,7 @@
 import { connectDb } from "@/lib/database";
 import { Lead } from "@/lib/models/lead";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { sendSMSNotification } from "@/lib/sms";
 import { NextResponse } from "next/server";
 
 // CORS headers for embeddable form POSTs
@@ -75,6 +76,15 @@ export async function POST(req: Request) {
 			done: false,
 		});
 
+		// Send SMS notification to user first
+		// await sendSMSNotification({
+		// 	name,
+		// 	phone,
+		// 	loanAmount,
+		// });
+
+		await lead.save();
+
 		// Send Telegram notification to admin
 		await sendTelegramNotification({
 			name,
@@ -83,8 +93,6 @@ export async function POST(req: Request) {
 			city,
 			loanAmount: parsedLoan,
 		});
-
-		await lead.save();
 
 		return NextResponse.json(
 			{
@@ -217,16 +225,27 @@ export async function DELETE(req: Request) {
 		}
 
 		const body = await req.json().catch(() => ({}));
-		const { leadId } = body;
+		const { leadId, deleteAll } = body;
 
+		await connectDb();
+
+		// Handle delete all leads
+		if (deleteAll === true) {
+			const result = await Lead.deleteMany({});
+			return NextResponse.json({
+				ok: true,
+				deletedCount: result.deletedCount,
+				message: `Successfully deleted ${result.deletedCount} leads`,
+			});
+		}
+
+		// Handle single lead deletion
 		if (!leadId || typeof leadId !== "string") {
 			return NextResponse.json(
 				{ error: "Invalid request data" },
 				{ status: 400 }
 			);
 		}
-
-		await connectDb();
 
 		const deleted = await Lead.findByIdAndDelete(leadId);
 		if (!deleted) {
@@ -240,7 +259,7 @@ export async function DELETE(req: Request) {
 	} catch (err) {
 		console.error("DELETE /api/leads error:", err);
 		return NextResponse.json(
-			{ error: "Failed to delete lead" },
+			{ error: "Failed to delete lead(s)" },
 			{ status: 500 }
 		);
 	}

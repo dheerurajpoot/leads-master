@@ -7,7 +7,7 @@ import { exportLeadsToXLSX } from "@/lib/export-xlsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { leadAPI } from "@/lib/api";
-import { Shield, Users, CheckCircle } from "lucide-react";
+import { Shield, Users, CheckCircle, Trash2 } from "lucide-react";
 
 export default function AdminPage() {
 	const [adminKey, setAdminKey] = useState("");
@@ -18,6 +18,8 @@ export default function AdminPage() {
 	const [currentDateFilter, setCurrentDateFilter] = useState<
 		"today" | "yesterday" | "last7days" | "last30days" | "all"
 	>("today");
+	const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+	const [isDeletingAll, setIsDeletingAll] = useState(false);
 
 	// Check if admin key exists on component mount
 	useEffect(() => {
@@ -190,6 +192,30 @@ export default function AdminPage() {
 		}
 	};
 
+	const handleDeleteAll = async () => {
+		if (!leads.length) return;
+
+		setIsDeletingAll(true);
+		setError(null);
+
+		try {
+			const result = await leadAPI.deleteAll();
+			setLeads([]);
+			setShowDeleteAllConfirm(false);
+			console.log(`Successfully deleted ${result.deletedCount} leads`);
+		} catch (err: unknown) {
+			const errorMessage =
+				err instanceof Error
+					? err.message
+					: (err as { response?: { data?: { error?: string } } })
+							?.response?.data?.error ||
+					  "Failed to delete all leads";
+			setError(errorMessage);
+		} finally {
+			setIsDeletingAll(false);
+		}
+	};
+
 	const filteredLeadsCount = getFilteredLeads(currentDateFilter).length;
 
 	// Show authentication form if not authenticated
@@ -333,6 +359,15 @@ export default function AdminPage() {
 								size='sm'>
 								Refresh
 							</Button>
+							<Button
+								variant='destructive'
+								onClick={() => setShowDeleteAllConfirm(true)}
+								disabled={!leads.length || isDeletingAll}
+								size='sm'
+								className='bg-red-600 hover:bg-red-700 text-white'>
+								<Trash2 className='h-4 w-4 mr-1' />
+								{isDeletingAll ? "Deleting..." : "Delete All"}
+							</Button>
 						</div>
 
 						{/* Status Messages */}
@@ -375,6 +410,46 @@ export default function AdminPage() {
 					</CardContent>
 				</Card>
 			</div>
+
+			{/* Delete All Confirmation Dialog */}
+			{showDeleteAllConfirm && (
+				<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
+					<Card className='w-full max-w-md mx-4'>
+						<CardHeader>
+							<CardTitle className='text-red-600 flex items-center'>
+								<Trash2 className='h-5 w-5 mr-2' />
+								Delete All Leads
+							</CardTitle>
+						</CardHeader>
+						<CardContent className='space-y-4'>
+							<p className='text-gray-600'>
+								Are you sure you want to delete all{" "}
+								{leads.length} leads? This action cannot be
+								undone.
+							</p>
+							<div className='flex gap-3 justify-end'>
+								<Button
+									variant='outline'
+									onClick={() =>
+										setShowDeleteAllConfirm(false)
+									}
+									disabled={isDeletingAll}>
+									Cancel
+								</Button>
+								<Button
+									variant='destructive'
+									onClick={handleDeleteAll}
+									disabled={isDeletingAll}
+									className='bg-red-600 hover:bg-red-700'>
+									{isDeletingAll
+										? "Deleting..."
+										: "Delete All"}
+								</Button>
+							</div>
+						</CardContent>
+					</Card>
+				</div>
+			)}
 		</main>
 	);
 }

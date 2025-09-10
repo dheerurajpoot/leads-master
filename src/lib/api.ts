@@ -73,6 +73,14 @@ export const leadAPI = {
 		const response = await api.delete("/api/leads", { data: { leadId } });
 		return response.data;
 	},
+
+	// Delete all leads (admin only)
+	deleteAll: async () => {
+		const response = await api.delete("/api/leads", {
+			data: { deleteAll: true },
+		});
+		return response.data;
+	},
 };
 
 export default api;
